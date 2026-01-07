@@ -28,7 +28,8 @@ print("Starting training...")
 for epoch in range(epochs):
     x1 = get_batch(data, batch_size).to(device)
     loss = compute_loss(model, x1)
-    curloss = loss.item()   """必须要加.item(), 不然会把整个计算图带进来"""
+    curloss = loss.item()   
+    """必须要加.item(), 不然会把整个计算图带进来"""
     loss_history.append(curloss)
     optimizer.zero_grad()
     loss.backward()
