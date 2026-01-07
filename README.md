@@ -7,23 +7,23 @@
 ### 1. 时间嵌入层 (Time Embedding Layer)  
 为了让网络能够捕捉到$t \in [0, 1]$过程中的微小动力学变化，我们采用了双重升维策略：  
 
-首先，通过$t \cdot k\pi$将标量$t$映射到 8 个不同的频率空间。利用$\sin$和$\cos$函数生成 16 维的周期性特征向量，克服了神经网络对原始标量输入的谱偏差 (Spectral Bias)。  
+首先，通过 $t \cdot k\pi$ 将标量 $t$ 映射到 8 个不同的频率空间。利用 $\sin$ 和 $\cos$ 函数生成 16 维的周期性特征向量，克服了神经网络对原始标量输入的谱偏差 (Spectral Bias)。  
 
 其次，使用两层线性层（含 SiLU 激活）将 16 维原始频率特征投影至 64 维的高维嵌入空间。这一步实现了“特征增强”，确保时间信号在后续计算中不会被空间坐标信号淹没。  
 
 ### 2. 主干预测网络 (Backbone Network)  
 主干网络负责接收融合后的信号并预测当前的漂移速度（Vector Field）：  
-* 输入维度:$2 (\text{spatial}) + 64 (\text{temporal}) = 66$维。    
+* 输入维度: $2 (\text{spatial}) + 64 (\text{temporal}) = 66$ 维。    
 * 深度与宽度：采用 4 层 256 维的线性层。  
  初期采用3层MLP，但模型无法捕捉内层圆环特征。增加一层 MLP 是捕捉“内层圆环”的关键。
 * 激活函数：全线使用 SiLU (Sigmoid-weighted Linear Unit)。  
 
 **模型数据流**
 * 输入:当前粒子位置$x$与时间戳$t$。  
-* 升维:$t \xrightarrow{\text{Sin/Cos}} 16d \xrightarrow{\text{Linear}} 64d$。  
-* 拼接:$[\text{Position}, \text{TimeFeatures}]\in \mathbb{R}^{66}$。  
-* 映射:$66d \xrightarrow{4\times\text{MLP}}2d$。  
-* 输出:预测的条件向量场$u_t^{target}(x)$，指导粒子下一步的移动方向。 
+* 升维: $t \xrightarrow{\text{Sin/Cos}} 16d \xrightarrow{\text{Linear}} 64d$ 。  
+* 拼接: $[\text{Position}, \text{TimeFeatures}]\in \mathbb{R}^{66}$ 。  
+* 映射: $66d \xrightarrow{4\times\text{MLP}}2d$ 。  
+* 输出:预测的条件向量场 $u_t^{target}(x)$ ，指导粒子下一步的移动方向。 
 
 ## 训练：
 核心逻辑：概率路径采样模型并不直接学习终点分布，而是学习将噪声“推”向目标的速度场。在每一个训练迭代中：
@@ -73,8 +73,7 @@ for epoch in range(epochs):
 * dataset.py: 生成 2D 目标分布（Concentric Circles）。  
 * model.py: 构建预测向量场的 MLP 网络，集成了多维时间嵌入（Time Embedding）。  
 * flow_utils.py: 核心逻辑模块，包含  
-1.训练目标：条件流匹配损失 
-$$||v_\theta(x_t, t) - (x_1 - x_0)||^2$$
+1.训练目标：条件流匹配损失 $||v_\theta(x_t, t) - (x_1 - x_0)||^2$ 
 
 2.采样器：基于欧拉法（Euler Method）的 ODE 数值求解。
 * main.py: 训练循环与超参数控制。
