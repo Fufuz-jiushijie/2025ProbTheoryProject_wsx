@@ -142,7 +142,7 @@ $$u_t^{target}(x) = \frac{\int p_t(x|z) p_{data}(z) u_t^{target}(x|z) dz}{p_t(x)
 
 ## **模型架构说明**：  
 ### 1. 时间嵌入层 (Time Embedding Layer)  
-为了让网络能够捕捉到$t \in [0, 1]$过程中的微小动力学变化，我们采用了双重升维策略：  
+为了让网络能够捕捉到 $t \in [0, 1]$ 过程中的微小动力学变化，使用Time Embedding进行升维：  
 
 首先，通过 $t \cdot k\pi$ 将标量 $t$ 映射到 8 个不同的频率空间。利用 $\sin$ 和 $\cos$ 函数生成 16 维的周期性特征向量，克服了神经网络对原始标量输入的谱偏差 (Spectral Bias)。  
 
