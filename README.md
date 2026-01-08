@@ -156,10 +156,10 @@ $$u_t^{target}(x) = \frac{\int p_t(x|z) p_{data}(z) u_t^{target}(x|z) dz}{p_t(x)
 * 激活函数：全线使用 SiLU (Sigmoid-weighted Linear Unit)。  
 
 **模型数据流**
-* 输入:当前粒子位置$x$与时间戳$t$。  
+* 输入:当前粒子位置 $x$ 与时间戳 $t$ 。  
 * 升维: $t \xrightarrow{\text{Sin/Cos}} 16d \xrightarrow{\text{Linear}} 64d$ 。  
-* 拼接: $[\text{Position}, \text{TimeFeatures}]\in \mathbb{R}^{66}$ 。  
-* 映射: $66d \xrightarrow{4\times\text{MLP}}2d$ 。  
+* 拼接: $[\text{Position}, \text{TimeFeatures}]\in \mathbb{R}^{66}$ 。    
+* 映射: $66d \xrightarrow{4\times\text{MLP}}2d $ 。  
 * 输出:预测的条件向量场 $u_t^{target}(x)$ ，指导粒子下一步的移动方向。 
 
 ## 训练：
