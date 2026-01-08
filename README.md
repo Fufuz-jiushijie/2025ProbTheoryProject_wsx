@@ -30,21 +30,25 @@
 1. **构建条件 ODE**：
   对于每个固定的辅助随机变量 $\vec{z} = z$，定义条件概率路径下的常微分方程（ODE）：  
 
-   $$\frac{dX_t}{dt} = u_t^{target}(\vec{x}|\vec{z})$$
+   $$
+   \frac{dX_t}{dt} = u_t^{target}(\vec{x}|\vec{z})
+   $$
   其中 $u_t^{target}(\vec{x}|\vec{z})$ 被称为条件向量场。
   
 
 2. **引入质量守恒**：
   考虑空间中体积 $V$ 内的“质量”（即概率密度积分）。根据物理意义，盒内质量的变化率等于流出量的负值：
 
-   $$\frac{dm}{dt} = -\text{流出量}$$
+   $$
+   \frac{dm}{dt} = -\text{流出量}
+   $$
 
 
 3. **导出条件 PDE**：
  利用高斯散度定理，将通过闭合曲面的流量转化为体积积分：  
-
-   $$\frac{\partial p_t(x|z)}{\partial t} = -\nabla \cdot (p_t(x|z) \cdot u_t^{target}(x|z))$$
-
+   $$
+   \frac{\partial p_t(x|z)}{\partial t} = -\nabla \cdot (p_t(x|z) \cdot u_t^{target}(x|z))
+   $$
    此方程为条件概率密度演化的偏微分方程（PDE）。
 
 ---
@@ -53,38 +57,62 @@
 
 1. **边缘化定义**：
 	  边缘概率路径 $p_t(x)$ 是联合分布对 $z$ 维度的多重积分：
-  $$p_t(x) = \int p_t(x|z) p_{data}(z) dz$$
+  $$
+  p_t(x) = \int p_t(x|z) p_{data}(z) dz
+  
+  $$
 
 2. **对时间求导**：
 	 由于积分变量 $z$ 与时间 $t$ 无关，可以将求导符号移入积分内：
-   $$\frac{\partial p_t(x)}{\partial t} = \int \frac{\partial p_t(x|z)}{\partial t} p_{data}(z) dz$$
+   $$
+   \frac{\partial p_t(x)}{\partial t} = \int \frac{\partial p_t(x|z)}{\partial t} p_{data}(z) dz
+   $$
 
 3. **代入条件 PDE**：
 	 将 Step 1 中的结论代入，得到边缘概率变化率的表达式 ：
-   $$\frac{\partial p_t(x)}{\partial t} = -\int \nabla \cdot (p_t(x|z) \cdot u_t^{target}(x|z)) p_{data}(z) dz$$
+   
+   $$
+   \frac{\partial p_t(x)}{\partial t} = -\int \nabla \cdot (p_t(x|z) \cdot u_t^{target}(x|z)) p_{data}(z) dz
+   $$
 
 ---
 ### Step 3: 建立边缘向量场与条件概率、pdata、条件向量场的关系
 1. **边缘分布的连续性方程**：
 	边缘概率路径 $p_t(x)$ 自身也必须满足其对应的连续性方程 ：
-   $$\frac{\partial p_t(x)}{\partial t} = -\nabla \cdot (p_t(x) \cdot u_t^{target}(x))$$
+   
+   $$
+   \frac{\partial p_t(x)}{\partial t} = -\nabla \cdot (p_t(x) \cdot u_t^{target}(x))
+   $$
+
 
 2. **算子提取**：
-	由于散度算子 $\nabla \cdot$ 是对 $x$ 的操作，与积分变量 $z$ 无关，可以将其从积分号中移出：  $$\frac{\partial p_t(x)}{\partial t} = -\nabla \cdot \int p_t(x|z) \cdot u_t^{target}(x|z) p_{data}(z) dz$$ 
+	由于散度算子 $\nabla \cdot$ 是对 $x$ 的操作，与积分变量 $z$ 无关，可以将其从积分号中移出：  
+   $$
+   \frac{\partial p_t(x)}{\partial t} = -\nabla \cdot \int p_t(x|z) \cdot u_t^{target}(x|z) p_{data}(z) dz
+   $$ 
+
 
 3. **求解边缘向量场**：
 	对比上述两个方程，为了使等式成立，边缘向量场 $u_t^{target}(x)$ 必须满足：
-   $$u_t^{target}(x) = \frac{\int p_t(x|z) p_{data}(z) u_t^{target}(x|z) dz}{p_t(x)}$$
+   $$
+   u_t^{target}(x) = \frac{\int p_t(x|z) p_{data}(z) u_t^{target}(x|z) dz}{p_t(x)}
+   $$
  **小结**：整个过程利用条件分布构造边缘分布，通过对条件向量场进行加权平均（以 $p_{data}(z)$ 为权重），从而解出满足边缘分布演化的边缘向量场。
 
 ## 损失一致性证明
 ### 定义损失函数 
 在条件流匹配中，训练神经网络 $v_t(x)$ 的目标是最小化在所有路径和时间上的平方误差： 
-$$\mathcal{L}_{CFM} = \mathbb{E}_{t \sim \mathcal{U}[0,1], z \sim p_{data}(z), x \sim p_t(x|z)} \left[ \| v_t(x) - u_t^{target}(x|z) \|^2 \right]$$
+$$
+\mathcal{L}_{CFM} = \mathbb{E}_{t \sim \mathcal{U}[0,1], z \sim p_{data}(z), x \sim p_t(x|z)} \left[ \| v_t(x) - u_t^{target}(x|z) \|^2 \right]
+$$  
+
 
 ### 利用重期望公式展开
 为了分析最优解，我们将期望分解，先对给定 $x$ 时的后验分布 $p_t(z|x)$ 求期望，再对 $x$ 的边缘分布 $p_t(x)$ 求期望：   
-$$\mathcal{L}_{CFM} = \mathbb{E}_{t, x \sim p_t(x)} \left[ \mathbb{E}_{z \sim p_t(z|x)} \left[ \| v_t(x) - u_t^{target}(x|z) \|^2 \right] \right]$$
+$$
+\mathcal{L}_{CFM} = \mathbb{E}_{t, x \sim p_t(x)} \left[ \mathbb{E}_{z \sim p_t(z|x)} \left[ \| v_t(x) - u_t^{target}(x|z) \|^2 \right] \right]
+$$
+
 
 
 ### 求解极值 (MSE 最优解)   
